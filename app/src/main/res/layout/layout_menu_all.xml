@@ -124,7 +124,7 @@
                                 android:layout_height="18dp"
                                 android:contentDescription="@string/action_open_settings"
                                 android:padding="1dp"
-                                android:rotation="270"
+                                android:rotation="0"
                                 android:src="@mipmap/up_down" />
                         </LinearLayout>
                     </RelativeLayout>

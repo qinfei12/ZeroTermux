@@ -66,7 +66,7 @@
                     <ImageView
                         android:layout_width="15dp"
                         android:src="@mipmap/up_down"
-                        android:rotation="270"
+                        android:rotation="0"
                         android:layout_height="15dp"/>
                 </LinearLayout>
 
@@ -118,7 +118,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="10dp"
-                    android:rotation="270"
+                    android:rotation="0"
                     android:src="@mipmap/up_down"/>
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
@@ -172,7 +172,7 @@
                     <ImageView
                         android:layout_width="15dp"
                         android:src="@mipmap/up_down"
-                        android:rotation="270"
+                        android:rotation="0"
                         android:layout_height="15dp"/>
                 </LinearLayout>
 
@@ -230,7 +230,7 @@
                     <ImageView
                         android:layout_width="15dp"
                         android:layout_height="15dp"
-                        android:rotation="270"
+                        android:rotation="0"
                         android:src="@mipmap/up_down" />
                 </LinearLayout>
 
@@ -282,7 +282,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="10dp"
-                    android:rotation="270"
+                    android:rotation="0"
                     android:src="@mipmap/up_down" />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
@@ -335,7 +335,7 @@
                     <ImageView
                         android:layout_width="15dp"
                         android:src="@mipmap/up_down"
-                        android:rotation="270"
+                        android:rotation="0"
                         android:layout_height="15dp"/>
                 </LinearLayout>
 
@@ -393,7 +393,7 @@
                     <ImageView
                         android:layout_width="15dp"
                         android:src="@mipmap/up_down"
-                        android:rotation="270"
+                        android:rotation="0"
                         android:layout_height="15dp"/>
                 </LinearLayout>
 
@@ -449,7 +449,7 @@
                     <ImageView
                         android:layout_width="15dp"
                         android:src="@mipmap/up_down"
-                        android:rotation="270"
+                        android:rotation="0"
                         android:layout_height="15dp"/>
                 </LinearLayout>
 
@@ -506,7 +506,7 @@
                     <ImageView
                         android:layout_width="15dp"
                         android:src="@mipmap/up_down"
-                        android:rotation="270"
+                        android:rotation="0"
                         android:layout_height="15dp"/>
                 </LinearLayout>
 

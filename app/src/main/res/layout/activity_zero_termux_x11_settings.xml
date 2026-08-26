@@ -217,7 +217,7 @@
                             android:id="@+id/x11_settings_img"
                             android:layout_width="15dp"
                             android:src="@mipmap/up_down"
-                            android:rotation="270"
+                            android:rotation="0"
                             android:layout_height="15dp"/>
                     </LinearLayout>
 

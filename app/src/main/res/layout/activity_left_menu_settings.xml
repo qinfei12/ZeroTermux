@@ -62,7 +62,7 @@
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
                         android:layout_marginRight="10dp"
-                        android:rotation="270"
+                        android:rotation="0"
                         android:src="@mipmap/up_down" />
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>

@@ -343,7 +343,7 @@
                         <ImageView
                             android:layout_width="15dp"
                             android:src="@mipmap/up_down"
-                            android:rotation="270"
+                            android:rotation="0"
                             android:visibility="invisible"
                             android:layout_height="15dp"/>
                     </LinearLayout>
