@@ -74,7 +74,7 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuViewHolder> {
             }
         });
         // 折叠图标也可点击
-        holder.mOpenSettings.setOnClickListener(holder.itemView::performClick);
+            holder.mOpenSettings.setOnClickListener(v -> holder.itemView.performClick());
     }
             holder.itemView.setOnClickListener(v -> {
                 int visibility = holder.mItemMenuRec.getVisibility();
