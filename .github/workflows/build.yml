@@ -203,11 +203,14 @@ jobs:
           name: ZeroTermux-Nightly_release_x86
           path: app/build/outputs/apk/release/*_x86.apk
           if-no-files-found: ignore
-      - name: 上传 Release APK (x86_64)
-        if: ${{ inputs.build_release && inputs.arch == 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
+      - name: 创建预发行 (Pre-release)
+        if: ${{ inputs.build_release && inputs.arch != 'all' }}
+        uses: softprops/action-gh-release@v2
         with:
-          name: ZeroTermux-Nightly_release_x86_64
-          path: app/build/outputs/apk/release/*_x86_64.apk
-          if-no-files-found: ignore
+          tag_name: nightly-${{ github.run_id }}
+          name: ZeroTermux Nightly ${{ inputs.arch }}
+          prerelease: true
+          files: app/build/outputs/apk/release/*_${{ inputs.arch }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
