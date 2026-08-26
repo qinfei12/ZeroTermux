@@ -4,46 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      arch:
-        description: '目标架构'
-        required: true
-        type: choice
-        options:
-          - all
-          - universal
-          - arm
-          - arm64
-          - x86
-          - x86_64
-      build_debug:
-        description: '编译 Debug 版本'
-        type: boolean
-        default: true
-      build_release:
-        description: '编译 Release 版本'
-        type: boolean
-        default: true
-  workflow_call:
-    inputs:
-      arch:
-        required: true
-        type: string
-      build_debug:
-        required: false
-        type: boolean
-        default: true
-      build_release:
-        required: false
-        type: boolean
-        default: true
-    secrets:
-      KEY_ALIAS:
-        required: false
-      KEY_PASSWORD:
-        required: false
-      STORE_PASSWORD:
-        required: false
 
 jobs:
   build:
@@ -55,6 +15,7 @@ jobs:
     env:
       JAVA_VERSION: "17"
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      ARCH: arm64
       KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
@@ -90,156 +51,36 @@ jobs:
       - name: 给 gradlew 执行权限
         run: chmod +x gradlew
 
-      - name: 映射架构名称
-        id: abi
-        env:
-          ARCH: ${{ inputs.arch || 'universal' }}
+      - name: 编译 Debug 和 Release APK
         run: |
-          case "$ARCH" in
-            all)       echo "abi=all" >> $GITHUB_OUTPUT ;;
-            universal) echo "abi=universal" >> $GITHUB_OUTPUT ;;
-            arm)       echo "abi=armeabi-v7a" >> $GITHUB_OUTPUT ;;
-            arm64)     echo "abi=arm64-v8a" >> $GITHUB_OUTPUT ;;
-            x86)       echo "abi=x86" >> $GITHUB_OUTPUT ;;
-            x86_64)    echo "abi=x86_64" >> $GITHUB_OUTPUT ;;
-          esac
-
-      - name: 编译 APK
-        env:
-          ARCH: ${{ inputs.arch || 'universal' }}
-          RAW_DEBUG: ${{ inputs.build_debug }}
-          RAW_RELEASE: ${{ inputs.build_release }}
-          EVENT: ${{ github.event_name }}
-        run: |
-          if [ "$EVENT" = "push" ]; then
-            BUILD_DEBUG=false
-            BUILD_RELEASE=true
-          else
-            if [ "$RAW_DEBUG" = "true" ]; then BUILD_DEBUG=true; else BUILD_DEBUG=false; fi
-            if [ "$RAW_RELEASE" = "true" ]; then BUILD_RELEASE=true; else BUILD_RELEASE=false; fi
-          fi
-
-          TASKS=""
-          if [ "$BUILD_DEBUG" = "true" ]; then
-            TASKS=":app:assembleDebug"
-          fi
-          if [ "$BUILD_RELEASE" = "true" ]; then
-            TASKS="$TASKS :app:assembleRelease"
-          fi
-
-          if [ -z "$(echo $TASKS)" ]; then
-            echo "没有选择任何编译目标"
-            exit 1
-          fi
-
-          echo "BUILD_DEBUG=$BUILD_DEBUG" >> $GITHUB_ENV
-          echo "BUILD_RELEASE=$BUILD_RELEASE" >> $GITHUB_ENV
           echo "ARCH=$ARCH" >> $GITHUB_ENV
+          ./gradlew --build-cache --parallel --stacktrace :app:assembleDebug :app:assembleRelease -Darch=$ARCH
 
-          ./gradlew --build-cache --parallel --stacktrace $TASKS -Darch=$ARCH
-
-      - name: 上传 Debug APK (${{ steps.abi.outputs.abi }})
-        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH != 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
-        with:
-          name: ZeroTermux-Nightly_debug_${{ steps.abi.outputs.abi }}
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: ignore
-
-      - name: 上传 Release APK (${{ steps.abi.outputs.abi }})
-        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH != 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
-        with:
-          name: ZeroTermux-Nightly_release_${{ steps.abi.outputs.abi }}
-          path: app/build/outputs/apk/release/*.apk
-          if-no-files-found: ignore
-
-      # all 模式下按架构分别上传，避免打包成一个 zip
-      - name: 上传 Debug APK (universal)
-        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
-        with:
-          name: ZeroTermux-Nightly_debug_universal
-          path: app/build/outputs/apk/debug/*_universal.apk
-          if-no-files-found: ignore
-      - name: 上传 Debug APK (armeabi-v7a)
-        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
-        with:
-          name: ZeroTermux-Nightly_debug_armeabi-v7a
-          path: app/build/outputs/apk/debug/*_armeabi-v7a.apk
-          if-no-files-found: ignore
-      - name: 上传 Debug APK (arm64-v8a)
-        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
+      - name: 上传 Debug APK
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: ZeroTermux-Nightly_debug_arm64-v8a
-          path: app/build/outputs/apk/debug/*_arm64-v8a.apk
-          if-no-files-found: ignore
-      - name: 上传 Debug APK (x86)
-        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
-        with:
-          name: ZeroTermux-Nightly_debug_x86
-          path: app/build/outputs/apk/debug/*_x86.apk
-          if-no-files-found: ignore
-      - name: 上传 Debug APK (x86_64)
-        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
-        with:
-          name: ZeroTermux-Nightly_debug_x86_64
-          path: app/build/outputs/apk/debug/*_x86_64.apk
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: ignore
 
-      - name: 上传 Release APK (universal)
-        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH == 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
-        with:
-          name: ZeroTermux-Nightly_release_universal
-          path: app/build/outputs/apk/release/*_universal.apk
-          if-no-files-found: ignore
-      - name: 上传 Release APK (armeabi-v7a)
-        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH == 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
-        with:
-          name: ZeroTermux-Nightly_release_armeabi-v7a
-          path: app/build/outputs/apk/release/*_armeabi-v7a.apk
-          if-no-files-found: ignore
-      - name: 上传 Release APK (arm64-v8a)
-        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH == 'all' }}
+      - name: 上传 Release APK
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: ZeroTermux-Nightly_release_arm64-v8a
-          path: app/build/outputs/apk/release/*_arm64-v8a.apk
+          path: app/build/outputs/apk/release/*.apk
           if-no-files-found: ignore
-      - name: 上传 Release APK (x86)
-        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH == 'all' }}
-        continue-on-error: true
-        uses: actions/upload-artifact@v7
-        with:
-          name: ZeroTermux-Nightly_release_x86
-          path: app/build/outputs/apk/release/*_x86.apk
-          if-no-files-found: ignore
+
       - name: 创建预发行 (Pre-release)
-        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH != 'all' }}
         continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nightly-${{ github.run_id }}
-          name: ZeroTermux Nightly ${{ env.ARCH }}
+          name: ZeroTermux Nightly arm64
           prerelease: true
-          files: app/build/outputs/apk/release/*_${{ steps.abi.outputs.abi }}.apk
+          files: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
