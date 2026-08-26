@@ -76,43 +76,6 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuViewHolder> {
         // 折叠图标也可点击
             holder.mOpenSettings.setOnClickListener(v -> holder.itemView.performClick());
     }
-            holder.itemView.setOnClickListener(v -> {
-                int visibility = holder.mItemMenuRec.getVisibility();
-                if (visibility == View.VISIBLE) {
-                    holder.mOpenSettings.setRotation(0);
-                    holder.mItemMenuRec.setVisibility(View.GONE);
-                    UserSetManage.Companion.get().setMainMenuItemShow(
-                        String.valueOf(mMainMenuCategoryData.get(position).mId), UserSetManage.Companion.getITEM_GEON());
-                } else {
-                    holder.mOpenSettings.setRotation(180);
-                    holder.mItemMenuRec.setVisibility(View.VISIBLE);
-                    UserSetManage.Companion.get().setMainMenuItemShow(
-                        String.valueOf(mMainMenuCategoryData.get(position).mId), UserSetManage.Companion.getITEM_VISIBLE());
-                }
-            });
-            // 让折叠图标本身也可点击，提供相同的展开/收起功能
-            holder.mOpenSettings.setOnClickListener(v -> {
-                int visibility = holder.mItemMenuRec.getVisibility();
-                if (visibility == View.VISIBLE) {
-                    holder.mOpenSettings.setRotation(0);
-                    holder.mItemMenuRec.setVisibility(View.GONE);
-                    UserSetManage.Companion.get().setMainMenuItemShow(
-                        String.valueOf(mMainMenuCategoryData.get(position).mId), UserSetManage.Companion.getITEM_GEON());
-                } else {
-                    holder.mOpenSettings.setRotation(180);
-                    holder.mItemMenuRec.setVisibility(View.VISIBLE);
-                    UserSetManage.Companion.get().setMainMenuItemShow(
-                        String.valueOf(mMainMenuCategoryData.get(position).mId), UserSetManage.Companion.getITEM_VISIBLE());
-                }
-            });
-            // 删除之前的 toggleGroup lambda，已不再使用
-
-        } else {
-            // 全局收起时不显示展开按钮并隐藏子项
-            holder.mOpenSettings.setVisibility(View.GONE);
-            holder.mItemMenuRec.setVisibility(View.GONE);
-        }
-    }
 
     @Override
     public int getItemCount() {
