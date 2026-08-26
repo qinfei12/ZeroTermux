@@ -7,7 +7,7 @@ import com.termux.shared.logger.Logger;
 import com.termux.terminal.TerminalSession;
 import com.termux.view.TerminalViewClient;
 
-public class TermuxTerminalViewClientBase implements TerminalViewClient {
+public abstract class TermuxTerminalViewClientBase implements TerminalViewClient {
 
     public TermuxTerminalViewClientBase() {
     }
@@ -123,5 +123,7 @@ public class TermuxTerminalViewClientBase implements TerminalViewClient {
     public void logStackTrace(String tag, Exception e) {
         Logger.logStackTrace(tag, e);
     }
+    public abstract void openLeftDrawer();
+    public abstract void openRightDrawer();
 
 }
