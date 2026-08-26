@@ -205,6 +205,7 @@ jobs:
           if-no-files-found: ignore
       - name: 创建预发行 (Pre-release)
         if: ${{ inputs.build_release && inputs.arch != 'all' }}
+        continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nightly-${{ github.run_id }}
@@ -213,4 +214,5 @@ jobs:
           files: app/build/outputs/apk/release/*_${{ inputs.arch }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
