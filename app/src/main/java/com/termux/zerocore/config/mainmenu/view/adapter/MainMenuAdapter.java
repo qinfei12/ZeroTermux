@@ -47,18 +47,35 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuViewHolder> {
         MainMenuItemAdapter mainMenuItemAdapter = new MainMenuItemAdapter(mContext, mMainMenuCategoryData.get(position).mClickArrayList);
         mainMenuItemAdapters.put(position, mainMenuItemAdapter);
         holder.mItemMenuRec.setAdapter(mainMenuItemAdapter);
-        boolean foldEnabled = !UserSetManage.Companion.get().getZTUserBean().isCloseFoldMenu();
-        if (foldEnabled) {
-            holder.mOpenSettings.setVisibility(View.VISIBLE);
-            boolean mainMenuItemShow = UserSetManage.Companion.get().getMainMenuItemShow(String.valueOf(id));
-            Log.i(TAG, "onBindViewHolder mainMenuItemShow: " + mainMenuItemShow);
-            if (mainMenuItemShow) {
-                holder.mOpenSettings.setRotation(180);
-                holder.mItemMenuRec.setVisibility(View.VISIBLE);
-            } else {
+        // 始终显示折叠按钮，使用保存的展开状态决定子项可见性
+        holder.mOpenSettings.setVisibility(View.VISIBLE);
+        boolean mainMenuItemShow = UserSetManage.Companion.get().getMainMenuItemShow(String.valueOf(id));
+        Log.i(TAG, "onBindViewHolder mainMenuItemShow: " + mainMenuItemShow);
+        if (mainMenuItemShow) {
+            holder.mOpenSettings.setRotation(180);
+            holder.mItemMenuRec.setVisibility(View.VISIBLE);
+        } else {
+            holder.mOpenSettings.setRotation(0);
+            holder.mItemMenuRec.setVisibility(View.GONE);
+        }
+        // 整个卡片点击切换
+        holder.itemView.setOnClickListener(v -> {
+            int visibility = holder.mItemMenuRec.getVisibility();
+            if (visibility == View.VISIBLE) {
                 holder.mOpenSettings.setRotation(0);
                 holder.mItemMenuRec.setVisibility(View.GONE);
+                UserSetManage.Companion.get().setMainMenuItemShow(
+                        String.valueOf(mMainMenuCategoryData.get(position).mId), UserSetManage.Companion.getITEM_GEON());
+            } else {
+                holder.mOpenSettings.setRotation(180);
+                holder.mItemMenuRec.setVisibility(View.VISIBLE);
+                UserSetManage.Companion.get().setMainMenuItemShow(
+                        String.valueOf(mMainMenuCategoryData.get(position).mId), UserSetManage.Companion.getITEM_VISIBLE());
             }
+        });
+        // 折叠图标也可点击
+        holder.mOpenSettings.setOnClickListener(holder.itemView::performClick);
+    }
             holder.itemView.setOnClickListener(v -> {
                 int visibility = holder.mItemMenuRec.getVisibility();
                 if (visibility == View.VISIBLE) {
