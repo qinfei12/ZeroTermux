@@ -74,7 +74,9 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuViewHolder> {
                 }
             });
         } else {
+            // 全局收起时不显示展开按钮并隐藏子项
             holder.mOpenSettings.setVisibility(View.GONE);
+            holder.mItemMenuRec.setVisibility(View.GONE);
         }
     }
 
