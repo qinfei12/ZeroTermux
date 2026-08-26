@@ -1,6 +1,8 @@
 name: Build APK
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       arch:
@@ -87,9 +89,11 @@ jobs:
 
       - name: 映射架构名称
         id: abi
+        env:
+          ARCH: ${{ inputs.arch || 'universal' }}
         run: |
-          case "${{ inputs.arch }}" in
-            all)       echo "abi=all" >> $GITHUB_OUTPUT ;; 
+          case "$ARCH" in
+            all)       echo "abi=all" >> $GITHUB_OUTPUT ;;
             universal) echo "abi=universal" >> $GITHUB_OUTPUT ;;
             arm)       echo "abi=armeabi-v7a" >> $GITHUB_OUTPUT ;;
             arm64)     echo "abi=arm64-v8a" >> $GITHUB_OUTPUT ;;
@@ -97,13 +101,26 @@ jobs:
             x86_64)    echo "abi=x86_64" >> $GITHUB_OUTPUT ;;
           esac
 
-      - name: 编译 APK (${{ inputs.arch }})
+      - name: 编译 APK
+        env:
+          ARCH: ${{ inputs.arch || 'universal' }}
+          RAW_DEBUG: ${{ inputs.build_debug }}
+          RAW_RELEASE: ${{ inputs.build_release }}
+          EVENT: ${{ github.event_name }}
         run: |
+          if [ "$EVENT" = "push" ]; then
+            BUILD_DEBUG=false
+            BUILD_RELEASE=true
+          else
+            if [ "$RAW_DEBUG" = "true" ]; then BUILD_DEBUG=true; else BUILD_DEBUG=false; fi
+            if [ "$RAW_RELEASE" = "true" ]; then BUILD_RELEASE=true; else BUILD_RELEASE=false; fi
+          fi
+
           TASKS=""
-          if [ "${{ inputs.build_debug }}" = "true" ]; then
+          if [ "$BUILD_DEBUG" = "true" ]; then
             TASKS=":app:assembleDebug"
           fi
-          if [ "${{ inputs.build_release }}" = "true" ]; then
+          if [ "$BUILD_RELEASE" = "true" ]; then
             TASKS="$TASKS :app:assembleRelease"
           fi
 
@@ -112,10 +129,14 @@ jobs:
             exit 1
           fi
 
-          ./gradlew --build-cache --parallel --stacktrace $TASKS -Darch=${{ inputs.arch }}
+          echo "BUILD_DEBUG=$BUILD_DEBUG" >> $GITHUB_ENV
+          echo "BUILD_RELEASE=$BUILD_RELEASE" >> $GITHUB_ENV
+          echo "ARCH=$ARCH" >> $GITHUB_ENV
+
+          ./gradlew --build-cache --parallel --stacktrace $TASKS -Darch=$ARCH
 
       - name: 上传 Debug APK (${{ steps.abi.outputs.abi }})
-        if: ${{ inputs.build_debug && inputs.arch != 'all' }}
+        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH != 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -124,7 +145,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: 上传 Release APK (${{ steps.abi.outputs.abi }})
-        if: ${{ inputs.build_release && inputs.arch != 'all' }}
+        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH != 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -134,7 +155,7 @@ jobs:
 
       # all 模式下按架构分别上传，避免打包成一个 zip
       - name: 上传 Debug APK (universal)
-        if: ${{ inputs.build_debug && inputs.arch == 'all' }}
+        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -142,7 +163,7 @@ jobs:
           path: app/build/outputs/apk/debug/*_universal.apk
           if-no-files-found: ignore
       - name: 上传 Debug APK (armeabi-v7a)
-        if: ${{ inputs.build_debug && inputs.arch == 'all' }}
+        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -150,7 +171,7 @@ jobs:
           path: app/build/outputs/apk/debug/*_armeabi-v7a.apk
           if-no-files-found: ignore
       - name: 上传 Debug APK (arm64-v8a)
-        if: ${{ inputs.build_debug && inputs.arch == 'all' }}
+        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -158,7 +179,7 @@ jobs:
           path: app/build/outputs/apk/debug/*_arm64-v8a.apk
           if-no-files-found: ignore
       - name: 上传 Debug APK (x86)
-        if: ${{ inputs.build_debug && inputs.arch == 'all' }}
+        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -166,7 +187,7 @@ jobs:
           path: app/build/outputs/apk/debug/*_x86.apk
           if-no-files-found: ignore
       - name: 上传 Debug APK (x86_64)
-        if: ${{ inputs.build_debug && inputs.arch == 'all' }}
+        if: ${{ env.BUILD_DEBUG == 'true' && env.ARCH == 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -175,7 +196,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: 上传 Release APK (universal)
-        if: ${{ inputs.build_release && inputs.arch == 'all' }}
+        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH == 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -183,7 +204,7 @@ jobs:
           path: app/build/outputs/apk/release/*_universal.apk
           if-no-files-found: ignore
       - name: 上传 Release APK (armeabi-v7a)
-        if: ${{ inputs.build_release && inputs.arch == 'all' }}
+        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH == 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -191,7 +212,7 @@ jobs:
           path: app/build/outputs/apk/release/*_armeabi-v7a.apk
           if-no-files-found: ignore
       - name: 上传 Release APK (arm64-v8a)
-        if: ${{ inputs.build_release && inputs.arch == 'all' }}
+        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH == 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -199,7 +220,7 @@ jobs:
           path: app/build/outputs/apk/release/*_arm64-v8a.apk
           if-no-files-found: ignore
       - name: 上传 Release APK (x86)
-        if: ${{ inputs.build_release && inputs.arch == 'all' }}
+        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH == 'all' }}
         continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
@@ -207,14 +228,14 @@ jobs:
           path: app/build/outputs/apk/release/*_x86.apk
           if-no-files-found: ignore
       - name: 创建预发行 (Pre-release)
-        if: ${{ inputs.build_release && inputs.arch != 'all' }}
+        if: ${{ env.BUILD_RELEASE == 'true' && env.ARCH != 'all' }}
         continue-on-error: true
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nightly-${{ github.run_id }}
-          name: ZeroTermux Nightly ${{ inputs.arch }}
+          name: ZeroTermux Nightly ${{ env.ARCH }}
           prerelease: true
-          files: app/build/outputs/apk/release/*_${{ inputs.arch }}.apk
+          files: app/build/outputs/apk/release/*_${{ steps.abi.outputs.abi }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
