@@ -79,6 +79,12 @@ public final class TerminalView extends View {
     /** Keep track of the time when a touch event leading to sending mouse scroll events started. */
     private long mMouseStartDownTime = -1;
 
+    /** For swipe detection */
+    private float downX = 0;
+    private float downY = 0;
+    private static final int SWIPE_THRESHOLD = 100;
+    private boolean isSwiping = false;
+
     final Scroller mScroller;
 
     /** What was left in from scrolling movement. */
@@ -670,10 +676,41 @@ public final class TerminalView extends View {
                         sendMouseEventCode(event, TerminalEmulator.MOUSE_LEFT_BUTTON_MOVED, true);
                         break;
                 }
+}
+        } else {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    downX = event.getX();
+                    downY = event.getY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    float dx = event.getX() - downX;
+                    if (Math.abs(dx) > SWIPE_THRESHOLD) {
+                        if (downX < 100 && dx > 0) {
+                            if (mClient instanceof com.termux.app.terminal.TermuxTerminalViewClient) {
+                                com.termux.app.TermuxActivity activity = ((com.termux.app.terminal.TermuxTerminalViewClient) mClient).getActivity();
+                                if (activity != null) {
+                                    activity.getDrawer().smoothLeftOpen();
+                                    return true;
+                                }
+                            }
+                        } else if (downX > getWidth() - 100 && dx < 0) {
+                            if (mClient instanceof com.termux.app.terminal.TermuxTerminalViewClient) {
+                                com.termux.app.TermuxActivity activity = ((com.termux.app.terminal.TermuxTerminalViewClient) mClient).getActivity();
+                                if (activity != null) {
+                                    activity.getDrawer().smoothRightOpen();
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
-        mGestureRecognizer.onTouchEvent(event);
+         mGestureRecognizer.onTouchEvent(event);
         return true;
     }
 
