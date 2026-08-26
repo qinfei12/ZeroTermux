@@ -12,6 +12,7 @@ import com.termux.shared.termux.terminal.TermuxTerminalViewClientBase
 import com.termux.shared.view.KeyboardUtils
 import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
+import com.termux.app.TermuxActivity
 
 class EditorTerminalViewClient(
     private val activity: Activity,
@@ -122,5 +123,12 @@ class EditorTerminalViewClient(
     private fun restartTerminalInput() {
         val imm = activity.getSystemService(InputMethodManager::class.java) ?: return
         imm.restartInput(inputView)
+    }
+    override fun openLeftDrawer() {
+        (activity as? TermuxActivity)?.getDrawer()?.smoothLeftOpen()
+    }
+
+    override fun openRightDrawer() {
+        (activity as? TermuxActivity)?.getDrawer()?.smoothRightOpen()
     }
 }
