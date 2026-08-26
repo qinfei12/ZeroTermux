@@ -687,20 +687,16 @@ public final class TerminalView extends View {
                     float dx = event.getX() - downX;
                     if (Math.abs(dx) > SWIPE_THRESHOLD) {
                         if (downX < 100 && dx > 0) {
-                            if (mClient instanceof com.termux.app.terminal.TermuxTerminalViewClient) {
-                                com.termux.app.TermuxActivity activity = ((com.termux.app.terminal.TermuxTerminalViewClient) mClient).getActivity();
-                                if (activity != null) {
-                                    activity.getDrawer().smoothLeftOpen();
-                                    return true;
-                                }
+                            // Left swipe from left edge - open left drawer
+                            if (mClient != null) {
+                                mClient.openLeftDrawer();
+                                return true;
                             }
                         } else if (downX > getWidth() - 100 && dx < 0) {
-                            if (mClient instanceof com.termux.app.terminal.TermuxTerminalViewClient) {
-                                com.termux.app.TermuxActivity activity = ((com.termux.app.terminal.TermuxTerminalViewClient) mClient).getActivity();
-                                if (activity != null) {
-                                    activity.getDrawer().smoothRightOpen();
-                                    return true;
-                                }
+                            // Right swipe from right edge - open right drawer
+                            if (mClient != null) {
+                                mClient.openRightDrawer();
+                                return true;
                             }
                         }
                     }
@@ -709,8 +705,6 @@ public final class TerminalView extends View {
                     break;
             }
         }
-
-         mGestureRecognizer.onTouchEvent(event);
         return true;
     }
 
