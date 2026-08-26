@@ -2949,7 +2949,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             .setShadowColor(0xFFFFFF)
             .addListener(listener)
             //set edge size to swipe to 20dp (default is 0: whole range of the contentView bounds)
-            .setEdgeSize(SmartSwipe.dp2px(20, this))
+            .setEdgeSize(SmartSwipe.dp2px(75, this))
             .as(SlidingConsumer.class);
         mSlidingConsumer.setRelativeMoveFactor(100);
         SmartSwipe.wrap(this)
