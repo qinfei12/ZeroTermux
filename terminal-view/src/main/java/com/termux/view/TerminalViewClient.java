@@ -64,6 +64,8 @@ public interface TerminalViewClient {
 
 
     void onEmulatorSet();
+    void openLeftDrawer();
+    void openRightDrawer();
 
 
     void logError(String tag, String message);
