@@ -829,6 +829,22 @@ public class TermuxTerminalViewClient extends TermuxTerminalViewClientBase {
     /**
      * ZeroTermux
      */
+
+    /** ZeroTermux */
+    @Override
+    public void openLeftDrawer() {
+        if (mActivity != null) {
+            mActivity.getDrawer().smoothLeftOpen();
+        }
+    }
+
+    /** ZeroTermux */
+    @Override
+    public void openRightDrawer() {
+        if (mActivity != null) {
+            mActivity.getDrawer().smoothRightOpen();
+        }
+    }
     public interface KeyUpDown {
         void keyDown(int key);
     }
