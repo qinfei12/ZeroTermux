@@ -530,7 +530,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         setTermuxSessionsListView();
         // ZeroTermux add {@
-        fragmentManager(0);
+        // 让右侧抽屉默认显示 AI 面板
+        frame_file.setVisibility(View.INVISIBLE);
+        session_rl.setVisibility(View.INVISIBLE);
+        if (mAiAgentPanelHelper != null) {
+            mAiAgentPanelHelper.setPanelTabVisible(true);
+        }
         locaBroadcast();
 		// @}
         final Intent intent = getIntent();
@@ -795,26 +800,24 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void setToggleKeyboardView() {
         findViewById(R.id.toggle_keyboard_button).setOnClickListener(v -> {
-		  // ZeroTermux add {@
-          /*  mTermuxTerminalViewClient.onToggleSoftKeyboardRequest();
-            getDrawer().closeDrawers();*/
-            indexSwitch(0);
+            // ZeroTermux add {@
+            indexSwitch(1);
             fragmentManager(0);
-			// @}
+            // @}
         });
 
         findViewById(R.id.key_bord_button).setOnLongClickListener(v -> {
             toggleTerminalToolbar();
             return true;
         });
-		  // ZeroTermux add {@
+        // ZeroTermux add {@
         findViewById(R.id.select_new_session_button).setOnClickListener(v -> {
-            indexSwitch(1);
+            indexSwitch(2);
         });
         findViewById(R.id.deepseek).setOnClickListener(view -> {
-            showAiAgentTabContent();
+            indexSwitch(0);
         });
-		// @}
+        // @}
     }
 
 
@@ -2331,9 +2334,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         session_rl.setVisibility(View.INVISIBLE);
         switch (index) {
             case 0:
-                frame_file.setVisibility(View.VISIBLE);
+                if (mAiAgentPanelHelper != null) {
+                    mAiAgentPanelHelper.setPanelTabVisible(true);
+                }
                 break;
             case 1:
+                frame_file.setVisibility(View.VISIBLE);
+                break;
+            case 2:
                 session_rl.setVisibility(View.VISIBLE);
                 break;
         }
