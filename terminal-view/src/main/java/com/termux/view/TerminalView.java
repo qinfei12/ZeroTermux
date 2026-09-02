@@ -704,6 +704,11 @@ public final class TerminalView extends View {
                 default:
                     break;
             }
+            // Touch started away from edges → pass to gesture recognizer for scroll / long-press.
+            // Skip when starting near edges so edge-swipe can work without conflict.
+            if (downX >= 100 && downX <= getWidth() - 100) {
+                mGestureRecognizer.onTouchEvent(event);
+            }
         }
         return true;
     }
