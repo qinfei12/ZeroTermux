@@ -476,9 +476,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         removeTermuxActivityRootViewGlobalLayoutListener();
 
         unregisterTermuxActivityBroadcastReceiver();
-        // ZeroTermux add {@
+        // ZeroTermux add {
         //getDrawer().closeDrawers();
-        getDrawer().smoothClose();
+        // getDrawer().smoothClose(); // Removed: let sidebar stay open when going to background
         // @}
     }
 
@@ -1821,7 +1821,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     protected void onPause() {
         super.onPause();
         VideoUtils.getInstance().pause();
-        getDrawer().smoothClose();
         if(mInternalPassage && mMainActivity != null) {
             mMainActivity.onPause();
         }
