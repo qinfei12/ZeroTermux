@@ -13,7 +13,8 @@ const state = {
     camera: true,
     files: true,
     phoneSms: true
-  }
+  },
+  autoCloseTimerId: null
 };
 
 const NAV_LABELS = {
@@ -142,7 +143,14 @@ function switchPanel(name) {
 }
 
 document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => switchPanel(btn.dataset.panel));
+  btn.addEventListener('click', () => {
+    // 如果有自动关闭定时器待执行，则清除它
+    if (state.autoCloseTimerId !== null) {
+      clearTimeout(state.autoCloseTimerId);
+      state.autoCloseTimerId = null;
+    }
+    switchPanel(btn.dataset.panel);
+  });
 });
 
 loadWorkstationPermissions();
@@ -358,4 +366,16 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-loadWorkstationPermissions().then(() => switchPanel('terminal'));
+loadWorkstationPermissions().then(() => {
+  // 自动打开右侧栏（文件面板）
+  switchPanel('files');
+  
+  // 设置1.5秒后自动关闭的定时器
+  state.autoCloseTimerId = setTimeout(() => {
+    // 只有当定时器尚未被用户手动操作清除时才执行
+    if (state.autoCloseTimerId !== null) {
+      switchPanel('terminal'); // 自动关闭右侧栏（切回终端面板）
+      state.autoCloseTimerId = null; // 清除定时器ID
+    }
+  }, 1500);
+});
